@@ -53,11 +53,16 @@ struct _ParticleShape
 {
     public Shape        shape;              // 放射の仕方
     // shape
-    public float        radius;             // 半径(shape)
     public bool         emitFromShell;      // shapeの表面から出すか
+    // circle
+    public ShapeCircleParam arc;
+    // 共通
+    public float radius;             // 半径(shape,circle)
     public bool         alignToDirection;   // ２Dでは使わない
     public float        randomizeDirection; // ランダム方向に飛ばす（0から1）
     public float        spherizeDirection;  // 中心から外側に向かって飛ばす(0から1)
+
+
 }
 
 
@@ -127,7 +132,7 @@ struct Burst
 // Shapeの種類
 struct Shape
 {
-    public bool shape;
+    public bool sphere;
     public bool hemiSphere;
     public bool cone;
     public bool box;
@@ -138,6 +143,17 @@ struct Shape
     public bool edge;
 }
 
+// Shape = circleのパラメータ
+struct ShapeCircleParam
+{
+    public float        arc;
+    public bool         random;
+    public bool         loop;
+    public bool         pingpong;
+    public bool         burstSpeed;
+    public float        arcSpread;
+    public ParamMode    arcSpeed;
+}
 
 
 /// <summary>
@@ -169,8 +185,8 @@ public class ParticleController : MonoBehaviour {
         SetEmission();
         SetShape();
 
-        string json = JsonUtility.ToJson(m_saveData);
-        File.WriteAllText("C:\\work\\MyGameList\\RTS_verPC\\ParticleData\\test.txt",json);
+        string json = JsonUtility.ToJson(m_saveData,true);
+        File.WriteAllText("C:\\work\\MyGameList\\RTS_verPC\\ParticleData\\test.json",json);
     }
 
     // パーティクルメインモジュール格納
@@ -304,7 +320,7 @@ public class ParticleController : MonoBehaviour {
     }
     void InitShapeParam()
     {
-        m_saveData.shape.shape.shape = false;
+        m_saveData.shape.shape.sphere = false;
         m_saveData.shape.shape.hemiSphere = false;
         m_saveData.shape.shape.cone = false;
         m_saveData.shape.shape.box = false;
@@ -316,7 +332,7 @@ public class ParticleController : MonoBehaviour {
     }
     void ShapeParam()
     {
-        m_saveData.shape.shape.shape = true;
+        m_saveData.shape.shape.sphere = true;
         m_saveData.shape.radius = m_particle.shape.radius;
         m_saveData.shape.emitFromShell = true;
         m_saveData.shape.alignToDirection = m_particle.shape.alignToDirection;
@@ -345,7 +361,27 @@ public class ParticleController : MonoBehaviour {
     }
     void CircleParam()
     {
-
+        m_saveData.shape.shape.circle = true;
+        m_saveData.shape.radius = m_particle.shape.radius;
+        m_saveData.shape.arc.arc = m_particle.shape.arc;
+        m_saveData.shape.arc.arcSpread = m_particle.shape.arcSpread;
+        switch (m_particle.shape.arcMode)
+        {
+            case ParticleSystemShapeMultiModeValue.Random:
+                m_saveData.shape.arc.random = true;
+                break;
+            case ParticleSystemShapeMultiModeValue.Loop:
+                m_saveData.shape.arc.loop = true;
+                SetParam(m_saveData.shape.arc.arcSpeed, m_particle.shape.arcSpeed);
+                break;
+            case ParticleSystemShapeMultiModeValue.PingPong:
+                m_saveData.shape.arc.pingpong = true;
+                SetParam(m_saveData.shape.arc.arcSpeed, m_particle.shape.arcSpeed);
+                break;
+            case ParticleSystemShapeMultiModeValue.BurstSpread:
+                m_saveData.shape.arc.burstSpeed = true;
+                break;
+        }
     }
     void EdgeParam()
     {
