@@ -130,6 +130,7 @@ struct Burst
 }
 
 // Shapeの種類
+[System.Serializable]
 struct Shape
 {
     public bool sphere;
@@ -144,6 +145,7 @@ struct Shape
 }
 
 // Shape = circleのパラメータ
+[System.Serializable]
 struct ShapeCircleParam
 {
     public float        arc;
