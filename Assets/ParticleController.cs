@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Runtime.InteropServices;
 using System.IO;
+using UnityEngine.UI;
 
 [System.Serializable]
 struct SaveData
@@ -188,7 +189,9 @@ public class ParticleController : MonoBehaviour {
         SetShape();
 
         string json = JsonUtility.ToJson(m_saveData,true);
-        File.WriteAllText("C:\\work\\MyGameList\\RTS_verPC\\ParticleData\\test.json",json);
+        string fileName = GameObject.FindGameObjectWithTag("FileName").GetComponent<Text>().text + ".json";
+        
+        File.WriteAllText("../RTS_verPC\\ParticleData\\" + fileName , json);
     }
 
     // パーティクルメインモジュール格納
@@ -197,21 +200,21 @@ public class ParticleController : MonoBehaviour {
         m_saveData.main.duration                     = m_particle.main.duration;
         m_saveData.main.loop                         = m_particle.main.loop;
         m_saveData.main.prewarm                      = m_particle.main.prewarm;
-        SetParam(m_saveData.main.startDelay         , m_particle.main.startDelay);
-        SetParam(m_saveData.main.startLifeTime      , m_particle.main.startLifetime);
-        SetParam(m_saveData.main.startSpeed         , m_particle.main.startSpeed);
-        SetParam(m_saveData.main.startSize          , m_particle.main.startSize);
-        SetParam(m_saveData.main.startRotation      , m_particle.main.startRotation);
+        SetParam(ref m_saveData.main.startDelay         , m_particle.main.startDelay);
+        SetParam(ref m_saveData.main.startLifeTime      , m_particle.main.startLifetime);
+        SetParam(ref m_saveData.main.startSpeed         , m_particle.main.startSpeed);
+        SetParam(ref m_saveData.main.startSize          , m_particle.main.startSize);
+        SetParam(ref m_saveData.main.startRotation      , m_particle.main.startRotation);
         m_saveData.main.randomizeRotationDirection  = m_particle.main.randomizeRotationDirection;
-        SetColor(m_saveData.main.startColor         , m_particle.main.startColor);
-        SetParam(m_saveData.main.gravityModifier    , m_particle.main.gravityModifier);
+        SetColor(ref m_saveData.main.startColor         , m_particle.main.startColor);
+        SetParam(ref m_saveData.main.gravityModifier    , m_particle.main.gravityModifier);
         m_saveData.main.simulationSpeed             = m_particle.main.simulationSpeed;
         m_saveData.main.maxParticles                = m_particle.main.maxParticles;
         m_saveData.main.randSeed                    = true;
     }
 
     // パラメータセット
-    void SetParam(ParamMode _mode, ParticleSystem.MinMaxCurve _data)
+    void SetParam(ref ParamMode _mode, ParticleSystem.MinMaxCurve _data)
     {
         _mode.constant    = _data.constant;
         _mode.constantTwo = _data.constantMax;
@@ -231,10 +234,19 @@ public class ParticleController : MonoBehaviour {
     }
 
     // カラーセット
-    void SetColor(ColorMode _mode, ParticleSystem.MinMaxGradient _data)
+    void SetColor(ref ColorMode _mode, ParticleSystem.MinMaxGradient _data)
     {
-        RGBA(_mode.colorMin, _data.colorMin);
-        RGBA(_mode.colorMax, _data.colorMax);
+        // RGBA(_mode.colorMin, _data.colorMin);
+        //RGBA(_mode.colorMax, _data.colorMax);
+        _mode.colorMin.r = _data.color.r;
+        _mode.colorMin.g = _data.color.g;
+        _mode.colorMin.b = _data.color.b;
+        _mode.colorMin.a = _data.color.a;
+
+        _mode.colorMax.r = _data.color.r;
+        _mode.colorMax.g = _data.color.g;
+        _mode.colorMax.b = _data.color.b;
+        _mode.colorMax.a = _data.color.a;
     }
 
     void RGBA(Color _color,UnityEngine.Color _data)
@@ -248,7 +260,7 @@ public class ParticleController : MonoBehaviour {
     // パーティクルエミッション格納
     void SetEmission()
     {
-        SetParam(m_saveData.emission.rateOverTime, m_particle.emission.rateOverTime);
+        SetParam(ref m_saveData.emission.rateOverTime, m_particle.emission.rateOverTime);
         int burstsNum = m_particle.emission.burstCount;
         if (burstsNum != 0)
         {
@@ -374,11 +386,11 @@ public class ParticleController : MonoBehaviour {
                 break;
             case ParticleSystemShapeMultiModeValue.Loop:
                 m_saveData.shape.arc.loop = true;
-                SetParam(m_saveData.shape.arc.arcSpeed, m_particle.shape.arcSpeed);
+                SetParam(ref m_saveData.shape.arc.arcSpeed, m_particle.shape.arcSpeed);
                 break;
             case ParticleSystemShapeMultiModeValue.PingPong:
                 m_saveData.shape.arc.pingpong = true;
-                SetParam(m_saveData.shape.arc.arcSpeed, m_particle.shape.arcSpeed);
+                SetParam(ref m_saveData.shape.arc.arcSpeed, m_particle.shape.arcSpeed);
                 break;
             case ParticleSystemShapeMultiModeValue.BurstSpread:
                 m_saveData.shape.arc.burstSpeed = true;
